@@ -7,23 +7,17 @@ const cookieParser = require("cookie-parser");
 const connectDatabase = require("./src/Config/ConnectDB.config");
 const userRoute = require("./src/Route/Auth.route");
 const Groqrouter = require("./src/Route/Groq.route");
-
 const app = express();
 const PORT = process.env.PORT || 5000;
-
-// Database Connection
 connectDatabase();
 
-// 1. CORS Middleware (Origin ko fallback ke sath rakhein)
 app.use(cors({
   origin: process.env.CLIENTURL || "https://resume-builder-frontend-rosy-two.vercel.app",
   credentials: true,
   methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
   allowedHeaders: ["Content-Type", "Authorization"]
 }));
-
-// 2. Preflight FIX (Yeh line change ki hai)
-app.options("/(.*)", cors()); 
+app.options(/(.*)/, cors());
 
 app.use(express.json());
 app.use(cookieParser());
@@ -38,8 +32,6 @@ app.use((req, res, next) => {
   error.status = 404;
   next(error);
 });
-
-// Error Handler
 app.use((err, req, res, next) => {
   const statusCode = err.status || 500;
   res.status(statusCode).json({
