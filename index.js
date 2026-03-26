@@ -1,3 +1,5 @@
+const dns = require("node:dns/promises");
+dns.setServers(["1.1.1.1", "8.8.8.8"]);
 require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
@@ -7,7 +9,6 @@ const userRoute = require("./src/Route/Auth.route");
 const Groqrouter = require("./src/Route/Groq.route");
 const app = express();
 const PORT = process.env.PORT || 5000;
-
 // 1. Middlewares
 app.use(
   cors({
@@ -17,19 +18,11 @@ app.use(
 );
 app.use(express.json());
 app.use(cookieParser());
-
 // 2. Database Connection
 connectDatabase();
-
-
-
 //routes
 app.use("/RB", userRoute);
-app.use('/RB',Groqrouter)
-
-
-
-
+app.use("/RB", Groqrouter);
 
 // 4. 404 Not Found Handler
 app.use((req, res, next) => {
