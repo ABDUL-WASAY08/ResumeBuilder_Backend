@@ -10,24 +10,36 @@ const Groqrouter = require("./src/Route/Groq.route");
 
 const app = express();
 const PORT = process.env.PORT || 5000;
-connectDatabase();
-const allowedOrigins = [
-  "https://resume-builder-frontend-rosy-two.vercel.app",
-  "https://resume-builder-frontend-git-main-tahawasay1-1159s-projects.vercel.app",
-];
 
-app.use(cors({origin:process.env.CLIENTURL,credentials:true}));
-app.options("*", cors()); 
+// Database Connection
+connectDatabase();
+
+// 1. CORS Middleware (Origin ko fallback ke sath rakhein)
+app.use(cors({
+  origin: process.env.CLIENTURL || "https://resume-builder-frontend-rosy-two.vercel.app",
+  credentials: true,
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"]
+}));
+
+// 2. Preflight FIX (Yeh line change ki hai)
+app.options("/(.*)", cors()); 
 
 app.use(express.json());
 app.use(cookieParser());
+
+// Routes
 app.use("/RB", userRoute);
 app.use("/RB", Groqrouter);
+
+// 404 Handler
 app.use((req, res, next) => {
   const error = new Error("Not Found");
   error.status = 404;
   next(error);
 });
+
+// Error Handler
 app.use((err, req, res, next) => {
   const statusCode = err.status || 500;
   res.status(statusCode).json({
