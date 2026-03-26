@@ -94,10 +94,7 @@ const handleFile = async (req, res, next) => {
     if (!req.file) {
       return res.status(400).json({ message: "File nahi mili!" });
     }
-
-    const parser = pdf({ data: req.file.buffer });
-    const result = await parser.getText();
-    await parser.destroy();
+    const result = await pdf(req.file.buffer);
     const cleanText = result.text.replace(/[^\w\s]/g, "").trim();
     if (!result.text || cleanText.length < 20) {
       return res.status(400).json({
