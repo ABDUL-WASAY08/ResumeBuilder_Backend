@@ -1,5 +1,5 @@
 const { improveDescription, createResume, resume } = require("../Config/Groq.config");
-const pdf = require("pdf-parse");
+const pdf = require("pdf-parse-fork");
 
 const ImprovedText = async (req, res, next) => {
   try {
@@ -62,11 +62,9 @@ const handleFile = async (req, res, next) => {
     if (!req.file) {
       return res.status(400).json({ message: "File nahi mili!" });
     }
-    const options = {
-      pagerender: function() { return ""; }
-    };
 
-    const result = await pdf(req.file.buffer, options);
+    // Is fork mein options pass karne ki zaroorat nahi parti, ye serverless-friendly hai
+    const result = await pdf(req.file.buffer);
     
     const cleanText = result.text.replace(/[^\w\s]/g, "").trim();
     if (!result.text || cleanText.length < 20) {
@@ -78,10 +76,11 @@ const handleFile = async (req, res, next) => {
       res.status(200).json({
         success: true,
         data: response.data,
-        message: "successfull",
+        message: "Successful",
       });
     }
   } catch (error) {
+    console.error("PDF Parsing Error:", error);
     res.status(500).json({
       success: false,
       message: "Server error during parsing",
