@@ -10,10 +10,23 @@ const Groqrouter = require("./src/Route/Groq.route");
 const app = express();
 const PORT = process.env.PORT || 5000;
 // 1. Middlewares
+const allowedOrigins = [
+  "https://resume-builder-frontend-rosy-two.vercel.app",
+  "https://resume-builder-frontend-git-main-tahawasay1-1159s-projects.vercel.app",
+];
+
 app.use(
   cors({
-    origin: process.env.CLIENTURL,
+    origin: function (origin, callback) {
+      if (!origin || allowedOrigins.indexOf(origin) !== -1) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
     credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE"],
+    allowedHeaders: ["Content-Type", "Authorization"],
   }),
 );
 app.use(express.json());
