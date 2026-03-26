@@ -7,9 +7,10 @@ const cookieParser = require("cookie-parser");
 const connectDatabase = require("./src/Config/ConnectDB.config");
 const userRoute = require("./src/Route/Auth.route");
 const Groqrouter = require("./src/Route/Groq.route");
+
 const app = express();
 const PORT = process.env.PORT || 5000;
-// 1. Middlewares
+connectDatabase();
 const allowedOrigins = [
   "https://resume-builder-frontend-rosy-two.vercel.app",
   "https://resume-builder-frontend-git-main-tahawasay1-1159s-projects.vercel.app",
@@ -25,19 +26,16 @@ app.use(
       }
     },
     credentials: true,
-    methods: ["GET", "POST", "PUT", "DELETE"],
-    allowedHeaders: ["Content-Type", "Authorization"],
-  }),
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"], 
+    allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
+  })
 );
+app.options("*", cors()); 
+
 app.use(express.json());
 app.use(cookieParser());
-// 2. Database Connection
-connectDatabase();
-//routes
 app.use("/RB", userRoute);
 app.use("/RB", Groqrouter);
-
-// 4. 404 Not Found Handler
 app.use((req, res, next) => {
   const error = new Error("Not Found");
   error.status = 404;
@@ -50,9 +48,11 @@ app.use((err, req, res, next) => {
     message: err.message || "Internal Server Error",
   });
 });
+
 if (process.env.NODE_ENV !== "production") {
   app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);
   });
 }
+
 module.exports = app;
