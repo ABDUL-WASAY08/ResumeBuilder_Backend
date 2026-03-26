@@ -4,7 +4,7 @@ const {
   createResume,
   resume,
 } = require("../Config/Groq.config");
-const { PDFParse } = require("pdf-parse");
+const pdf = require("pdf-parse");
 
 const ImprovedText = async (req, res, next) => {
   try {
@@ -95,7 +95,7 @@ const handleFile = async (req, res, next) => {
       return res.status(400).json({ message: "File nahi mili!" });
     }
 
-    const parser = new PDFParse({ data: req.file.buffer });
+    const parser = pdf({ data: req.file.buffer });
     const result = await parser.getText();
     await parser.destroy();
     const cleanText = result.text.replace(/[^\w\s]/g, "").trim();
